@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hell</title>
+</head>
+<body>
+    
+    <div>
+        <button id="jps">Click here for temperatures in kelvin in Cairo over the next three days and flights as well - spaced at 3 hour intervals...</button>
+        <p id="temp_info"></p>
+        <p id="flight_info"></p>    
+    </div>
+
+</body>
+</html>
+
+<!-- <script>
+
+var oauth_token = null;
+
+function getToken() {
+    
+        function setToken(token) {
+        alert(this.token);
+        oauth_token = token;
+    }
+    var http = new XMLHttpRequest();
+    var url = "https://test.api.amadeus.com/v1/security/oauth2/token";
+    var params = "grant_type=client_credentials&client_id=Z9Fb2VEMHPrPue68nDfMhPV5Z8cj1YT3&client_secret=cRtDOOmAuRKL9RUv";
+    http.open('POST', url, true);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    http.onreadystatechange = function() {//Call a function when the state changes.
+        if(http.readyState == 4 && http.status == 200) {
+            resp = JSON.parse(http.responseText);
+            token =  resp['access_token'];
+            setToken(token);
+        }
+    }
+http.send(params);
+}
+
+getToken();
+
+setTimeout(() => console.log(oauth_token), 1000);
+</script> -->
+
+<script>
+
+// ehhybkNwxeESci4zmcbXqkn6DQaZ
+var oauth_token = null;
+
+function get_flights() {
+    var url = "https://test.api.amadeus.com/v1/shopping/flight-offers?origin=NYC&destination=MAD&departureDate=2020-08-01";
+    var http = new XMLHttpRequest();
+    http.open("GET", url);
+    http.setRequestHeader("Authorization", "Bearer " + oauth_token);
+    http.addEventListener("load", () => { console.log(http.responseText); 
+    document.getElementById("flight_info").textContent = http.responseText });
+    
+    http.send();
+}
+
+function getToken() {
+    
+    function setToken(token) {
+    alert(this.token);
+    oauth_token = token;
+}
+var http = new XMLHttpRequest();
+var url = "https://test.api.amadeus.com/v1/security/oauth2/token";
+var params = "grant_type=client_credentials&client_id=Z9Fb2VEMHPrPue68nDfMhPV5Z8cj1YT3&client_secret=cRtDOOmAuRKL9RUv";
+http.open('POST', url, true);
+
+//Send the proper header information along with the request
+http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+http.onreadystatechange = function() {//Call a function when the state changes.
+    if(http.readyState == 4 && http.status == 200) {
+        resp = JSON.parse(http.responseText);
+        token =  resp['access_token'];
+        setToken(token);
+        setTimeout(get_flights, 500);
+    }
+}
+http.send(params);
+}
+
+
+
+document.getElementById("jps").addEventListener("click", function handler(evt){
+	setTimeout( function request(){
+        url = "http://api.openweathermap.org/data/2.5/forecast?q=Cairo&appid=5de9db7e634afad8dcbe603f09193c00";
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener("load", function response(){
+            resp = JSON.parse(this.responseText);
+            decent_temps = resp['list'].map(arr => arr['main']['temp']).filter(temp => temp > 289);
+            console.log(decent_temps);
+            document.getElementById("temp_info").textContent = decent_temps.toString();
+            if (decent_temps) {
+                getToken();
+                setTimeout(() => {},1000)
+            }
+		});
+        oReq.open("GET", url);
+        oReq.send();
+	}, 500) ;
+} );
+
+</script>
